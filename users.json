@@ -14,5 +14,13 @@
         "address": "123 Main St",
         "mobileno": "1234567890",
         "account_type": "free"
+    },
+    {
+        "name": "Dheeraj",
+        "email": "dhee@gmail.com",
+        "password": "Dummy@123",
+        "address": "banglore century",
+        "mobileno": "7386856770",
+        "account_type": "free"
     }
 ]
