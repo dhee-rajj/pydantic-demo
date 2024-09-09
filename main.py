@@ -168,7 +168,8 @@ if __name__ == "__main__":
                         help='Add a user in JSON format')
     parser.add_argument('--list-users', action='store_true',
                         help='List all users')
-
+    parser.add_argument('--plot-graph', type=str,
+                        help='Plot hours spent graph for a user')
     args = parser.parse_args()
 
     if args.add_user:
@@ -177,6 +178,21 @@ if __name__ == "__main__":
         print("User added successfully.")
     elif args.list_users:
         print(serialize_users())
+    elif args.plot_graph:
+        user_name = args.plot_graph
+        hours_spent = get_user_hours_spent(user_name)
+        if hours_spent:
+            #Using dpg lib to show plot
+            if hours_spent:
+                dpg.create_context()
+                plot_hours_spent(hours_spent)
+                dpg.create_viewport(title='User Management', width=800, height=600)
+                dpg.setup_dearpygui()
+                dpg.show_viewport()
+                dpg.start_dearpygui()
+                dpg.destroy_context()
+        else:
+            print(f"No data found for user: {user_name}")
 
 
 
