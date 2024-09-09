@@ -9,29 +9,21 @@ import re
 import os
 
 # Enum for account types
-
-
 class AccountType(str, Enum):
     FREE = "free"
     PREMIUM = "premium"
 
 # Custom exceptions
-
-
 class InvalidUserDataError(Exception):
     def __init__(self, message="Invalid user data provided"):
         self.message = message
         super().__init__(self.message)
 
 # checking mobile number
-
-
 def is_all_digits(value: str) -> bool:
     return bool(re.match(r'^\d+$', value))
 
 # Pydantic model for user
-
-
 class UserModel(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr
@@ -49,8 +41,6 @@ class UserModel(BaseModel):
         return value
 
 # Dataclass for user , this dataclass type is used for storing
-
-
 @dataclass
 class User:
     name: str
@@ -84,9 +74,7 @@ def add_user(user_data: dict):
     except ValidationError as e:
         raise InvalidUserDataError(e)
 
-# Function to plot hours spent bar chart
-
-
+# Functions to plot hours spent bar chart
 def get_user_hours_spent(user_name):
     for user in users:
         if user.name == user_name:
@@ -114,8 +102,6 @@ def serialize_users() -> str:
     return json.dumps([user.__dict__ for user in users], indent=4)
 
 # Deserialize users from JSON
-
-
 def deserialize_users(json_data: str):
     user_list = json.loads(json_data)
     for user_data in user_list:
@@ -130,15 +116,11 @@ def load_users_from_file():
             deserialize_users(json_data)
 
 # save users to a file
-
-
 def save_users_to_file():
     with open('users.json', 'w') as file:
         file.write(serialize_users())
 
 # Submit call back function for gui
-
-
 def submit_callback(sender, app_data, user_data):
     name = dpg.get_value("name_input")
     email = dpg.get_value("email_input")
@@ -172,15 +154,12 @@ def submit_callback(sender, app_data, user_data):
         dpg.set_value("output_text", f"Validation Error: {e}")
 
 # Callback function for the display button
-
-
 def display_users_callback(sender, app_data, user_data):
     all_users_data = serialize_users()
     dpg.set_value("output_text", all_users_data)
 
 
 if __name__ == "__main__":
-    import argparse
 
     # CLI IMPLEMENTATION
     load_users_from_file()
@@ -199,6 +178,8 @@ if __name__ == "__main__":
     elif args.list_users:
         print(serialize_users())
 
+
+
     # Create DearPyGui context
     dpg.create_context()
 
@@ -215,9 +196,13 @@ if __name__ == "__main__":
                       account_type.value for account_type in AccountType], tag="account_type_input")
         dpg.add_input_text(label="Hours Spent (comma-separated)",
                            tag="hours_spent_input", multiline=True)
+        
+        #Adding Buttons
         dpg.add_button(label="Submit", callback=submit_callback)
         dpg.add_button(label="Display All Users",
                        callback=display_users_callback)
+        
+        #For Plotting hours spent
         dpg.add_combo(label="Select User", items=[
                       user.name for user in users], tag="user_select_combo")
         dpg.add_button(label="Plot Hours Spent",
