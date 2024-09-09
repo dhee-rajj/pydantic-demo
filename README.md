@@ -30,7 +30,7 @@ This project is a user management script that allows you to add users, list user
     ```
 ## Usage
 
-### Add a User
+### CLI commands
 
 To add a user, use the `--add-user` argument followed by the user data in JSON format:
 ```sh
