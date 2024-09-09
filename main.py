@@ -1,11 +1,13 @@
 from enum import Enum
 from typing import List
-from pydantic import BaseModel, EmailStr, Field, ValidationError
+from pydantic import BaseModel, EmailStr, Field, ValidationError, field_validator
 from dataclasses import dataclass
 import json
 import argparse
 import dearpygui.dearpygui as dpg
 import re
+import os
+
 
 # Enum for account types
 class AccountType(str, Enum):
@@ -45,14 +47,15 @@ class User:
     account_type: AccountType
 
 # List to store users
-users: List[User] = []
+users: List[UserModel] = []
 
 
 # Function to add a user
 def add_user(user_data: dict):
     try:
-        user = User(**user_data)
+        user = UserModel(**user_data)
         users.append(user)
+        save_users_to_file()
     except ValidationError as e:
         raise UserNotFoundError(e)
     
@@ -65,4 +68,38 @@ def serialize_users() -> str:
 def deserialize_users(json_data: str):
     user_list = json.loads(json_data)
     for user_data in user_list:
+        users.append(UserModel(**user_data))
+
+
+# Load users from file
+def load_users_from_file():
+    if os.path.exists('users.json'):
+        with open('users.json', 'r') as file:
+            json_data = file.read()
+            deserialize_users(json_data)
+
+# save users to a file
+def save_users_to_file():
+    with open('users.json', 'w') as file:
+        file.write(serialize_users())
+
+
+# CLI implementation
+def main():
+    load_users_from_file()
+    parser = argparse.ArgumentParser(description="User management script")
+    parser.add_argument('--add-user', type=str, help='Add a user in JSON format')
+    parser.add_argument('--list-users', action='store_true', help='List all users')
+
+    args = parser.parse_args()
+
+    if args.add_user:
+        user_data = json.loads(args.add_user)
         add_user(user_data)
+        print("User added successfully.")
+    elif args.list_users:
+        print(serialize_users())
+
+if __name__ == "__main__":
+    main()
+
