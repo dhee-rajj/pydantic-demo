@@ -15,8 +15,10 @@ class AccountType(str, Enum):
     PREMIUM = "premium"
 
 # Custom exceptions
-class UserNotFoundError(Exception):
-    pass
+class InvalidUserDataError(Exception):
+    def __init__(self, message="Invalid user data provided"):
+        self.message = message
+        super().__init__(self.message)
 
 def is_all_digits(value: str) -> bool:
     return bool(re.match(r'^\d+$', value))
@@ -33,7 +35,7 @@ class UserModel(BaseModel):
     @field_validator('mobileno')
     def validate_mobileno(cls, value: str) -> str:
         if not is_all_digits(value):
-            raise ValueError("Mobile number must contain only digits")
+            raise InvalidUserDataError("Mobile number must contain only digits")
         return value
 
 # Dataclass for user
@@ -47,22 +49,30 @@ class User:
     account_type: AccountType
 
 # List to store users
-users: List[UserModel] = []
+users: List[User] = []
 
 
 # Function to add a user
 def add_user(user_data: dict):
     try:
-        user = UserModel(**user_data)
+        user_model = UserModel(**user_data)
+        user = User(
+            name=user_model.name,
+            email=user_model.email,
+            password=user_model.password,
+            address=user_model.address,
+            mobileno=user_model.mobileno,
+            account_type=user_model.account_type
+        )
         users.append(user)
         save_users_to_file()
     except ValidationError as e:
-        raise UserNotFoundError(e)
+        raise InvalidUserDataError(e)
     
 
 # Serialize users to JSON
 def serialize_users() -> str:
-    return json.dumps([user.model_dump() for user in users], indent=4)
+    return json.dumps([user.__dict__ for user in users], indent=4)
 
 # Deserialize users from JSON
 def deserialize_users(json_data: str):
