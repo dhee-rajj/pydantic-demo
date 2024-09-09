@@ -1,26 +1,36 @@
 [
     {
-        "name": "Atif Aslam",
-        "email": "john.doe@example.com",
-        "password": "password123",
-        "address": "123 Main St",
-        "mobileno": "1234567890",
-        "account_type": "free"
+        "name": "klfsfgasg",
+        "email": "saf@g.com",
+        "password": "sfajksfjaf",
+        "address": "skjfkjsf",
+        "mobileno": "556458846546",
+        "account_type": "premium",
+        "hours_spent": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+        ]
     },
     {
-        "name": "Udit Narayan",
-        "email": "john.doe@example.com",
-        "password": "password123",
-        "address": "123 Main St",
-        "mobileno": "1234567890",
-        "account_type": "free"
-    },
-    {
-        "name": "Dheeraj",
-        "email": "dhee@gmail.com",
-        "password": "Dummy@123",
-        "address": "banglore century",
-        "mobileno": "7386856770",
-        "account_type": "free"
+        "name": "agsagasgg",
+        "email": "safansa@sn.com",
+        "password": "65465465454",
+        "address": "safsaffafs",
+        "mobileno": "6546546465",
+        "account_type": "free",
+        "hours_spent": [
+            1,
+            6,
+            7,
+            8,
+            9,
+            0,
+            2
+        ]
     }
 ]

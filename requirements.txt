@@ -1,0 +1,12 @@
+annotated-types==0.7.0
+asgiref==3.8.1
+dearpygui==1.11.1
+Django==5.1.1
+dnspython==2.6.1
+email_validator==2.2.0
+idna==3.8
+pydantic==2.9.0
+pydantic_core==2.23.2
+sqlparse==0.5.1
+typing_extensions==4.12.2
+tzdata==2024.1

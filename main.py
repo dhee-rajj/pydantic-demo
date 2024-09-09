@@ -8,8 +8,9 @@ import dearpygui.dearpygui as dpg
 import re
 import os
 
-
 # Enum for account types
+
+
 class AccountType(str, Enum):
     FREE = "free"
     PREMIUM = "premium"
@@ -21,6 +22,8 @@ class InvalidUserDataError(Exception):
     def __init__(self, message="Invalid user data provided"):
         self.message = message
         super().__init__(self.message)
+
+# checking mobile number
 
 
 def is_all_digits(value: str) -> bool:
@@ -36,6 +39,7 @@ class UserModel(BaseModel):
     address: str = Field(..., min_length=1, max_length=255)
     mobileno: str = Field(..., min_length=10, max_length=15)
     account_type: AccountType = AccountType.FREE
+    hours_spent: List[int] = Field(..., min_items=7, max_items=7)
 
     @field_validator('mobileno')
     def validate_mobileno(cls, value: str) -> str:
@@ -44,7 +48,7 @@ class UserModel(BaseModel):
                 "Mobile number must contain only digits")
         return value
 
-# Dataclass for user
+# Dataclass for user , this dataclass type is used for storing
 
 
 @dataclass
@@ -55,6 +59,7 @@ class User:
     address: str
     mobileno: str
     account_type: AccountType
+    hours_spent: List[int]
 
 
 # List to store users
@@ -71,12 +76,37 @@ def add_user(user_data: dict):
             password=user_model.password,
             address=user_model.address,
             mobileno=user_model.mobileno,
-            account_type=user_model.account_type
+            account_type=user_model.account_type,
+            hours_spent=user_model.hours_spent
         )
         users.append(user)
         save_users_to_file()
     except ValidationError as e:
         raise InvalidUserDataError(e)
+
+# Function to plot hours spent bar chart
+
+
+def get_user_hours_spent(user_name):
+    for user in users:
+        if user.name == user_name:
+            return user.hours_spent
+    return []
+
+
+def plot_hours_spent(hours_spent):
+    with dpg.window(label="Plot Window", autosize=True):
+        with dpg.plot(label="Hours Spent Over the Last 7 Days", height=400, width=600):
+            dpg.add_plot_legend()
+
+            # X-axis
+            with dpg.plot_axis(dpg.mvXAxis, label="Days"):
+                pass
+
+            # Y-axis
+            with dpg.plot_axis(dpg.mvYAxis, label="Hours Spent") as y_axis:
+                dpg.add_line_series(
+                    [0, 1, 2, 3, 4, 5, 6], hours_spent, label="Hours Spent", parent=y_axis)
 
 
 # Serialize users to JSON
@@ -106,6 +136,8 @@ def save_users_to_file():
     with open('users.json', 'w') as file:
         file.write(serialize_users())
 
+# Submit call back function for gui
+
 
 def submit_callback(sender, app_data, user_data):
     name = dpg.get_value("name_input")
@@ -114,13 +146,24 @@ def submit_callback(sender, app_data, user_data):
     address = dpg.get_value("address_input")
     mobileno = dpg.get_value("mobileno_input")
     account_type = dpg.get_value("account_type_input")
+    hours_spent_str = dpg.get_value("hours_spent_input")
+
+    try:
+        hours_spent = [int(x.strip())
+                       for x in hours_spent_str.split(',') if x.strip()]
+    except ValueError:
+        dpg.set_value(
+            "output_text", "Input should be valid integers separated by commas.")
+        return
+
     user_data = {
         "name": name,
         "email": email,
         "password": password,
         "address": address,
         "mobileno": mobileno,
-        "account_type": account_type
+        "account_type": account_type,
+        "hours_spent": hours_spent,
     }
     try:
         add_user(user_data)
@@ -170,20 +213,26 @@ if __name__ == "__main__":
         dpg.add_input_text(label="Mobile No", tag="mobileno_input")
         dpg.add_combo(label="Account Type", items=[
                       account_type.value for account_type in AccountType], tag="account_type_input")
+        dpg.add_input_text(label="Hours Spent (comma-separated)",
+                           tag="hours_spent_input", multiline=True)
         dpg.add_button(label="Submit", callback=submit_callback)
         dpg.add_button(label="Display All Users",
                        callback=display_users_callback)
+        dpg.add_combo(label="Select User", items=[
+                      user.name for user in users], tag="user_select_combo")
+        dpg.add_button(label="Plot Hours Spent",
+                       callback=lambda:  plot_hours_spent(get_user_hours_spent(dpg.get_value("user_select_combo"))))
         dpg.add_text("", tag="output_text")
 
     # Create DearPyGui viewport
-    dpg.create_viewport(title='User Registration', width=900, height=600)
+    dpg.create_viewport(title='User Information', width=900, height=600)
     dpg.setup_dearpygui()
 
     # Set viewport to maximized
     dpg.maximize_viewport()
 
     # Apply global font scale
-    dpg.set_global_font_scale(2)
+    dpg.set_global_font_scale(1.25)
 
     # Apply the theme globally
     dpg.show_viewport()
